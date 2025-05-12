@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Token Getter</title>
+  <title>Facebook Token Getter</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -28,21 +28,28 @@
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      const res = await fetch('/get-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      try {
+        const res = await fetch('/get-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
 
-      const data = await res.json();
-      if (data.success) {
-        msg.textContent = "Token retrieved!";
-        msg.style.color = "lime";
-        tokenBox.value = data.token;
-      } else {
-        msg.textContent = data.message;
+        const data = await res.json();
+
+        if (data.success) {
+          msg.textContent = "✅ Token retrieved!";
+          msg.style.color = "lime";
+          tokenBox.value = data.token;
+        } else {
+          msg.textContent = `❌ ${data.message}`;
+          msg.style.color = "red";
+          tokenBox.value = data.raw || data.error || "No additional info";
+        }
+      } catch (err) {
+        msg.textContent = "❌ Unexpected error.";
         msg.style.color = "red";
-        tokenBox.value = "";
+        tokenBox.value = err.message || "Unknown error";
       }
     });
   </script>
