@@ -12,15 +12,29 @@ app.post('/get-token', async (req, res) => {
 
   try {
     const url = `https://trashy.theworkpc.com/token?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      responseType: 'text' // 👈 ensures we treat even HTML as plain text
+    });
 
-    if (response.data && response.data.includes("EAA")) {
-      res.json({ success: true, token: response.data });
+    const body = response.data;
+
+    if (body.includes("EAA")) {
+      res.json({ success: true, token: body });
     } else {
-      res.json({ success: false, message: "Invalid credentials or no token returned." });
+      res.json({
+        success: false,
+        message: "No token returned. Possibly invalid credentials or server error.",
+        raw: body.slice(0, 100) // just a preview
+      });
     }
+
   } catch (error) {
-    res.json({ success: false, message: "API error. Please try again." });
+    console.error("API error:", error.message || error);
+    res.status(500).json({
+      success: false,
+      message: "Internal error or API unreachable.",
+      error: error.message || "Unknown"
+    });
   }
 });
 
