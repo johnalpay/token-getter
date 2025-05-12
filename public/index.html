@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Token Getter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Facebook Token Getter</h1>
+
+  <form id="tokenForm">
+    <input type="text" id="username" placeholder="Facebook Username" required />
+    <input type="password" id="password" placeholder="Facebook Password" required />
+    <button type="submit">Get Token</button>
+  </form>
+
+  <p id="responseMsg"></p>
+  <textarea id="tokenOutput" readonly placeholder="Token will appear here..."></textarea>
+
+  <script>
+    const form = document.getElementById('tokenForm');
+    const msg = document.getElementById('responseMsg');
+    const tokenBox = document.getElementById('tokenOutput');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/get-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        msg.textContent = "Token retrieved!";
+        msg.style.color = "lime";
+        tokenBox.value = data.token;
+      } else {
+        msg.textContent = data.message;
+        msg.style.color = "red";
+        tokenBox.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
